@@ -1,12 +1,319 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Il mio sito</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pantry Peasy – Supporto</title>
+<meta name="description" content="Supporto e domande frequenti per Pantry Peasy, l'app che salva il cibo prima che scada.">
+<link rel="icon" href="icona.png">
+<link rel="apple-touch-icon" href="icona.png">
+<style>
+  :root {
+    --bg: #fff8f1;
+    --card: #ffffff;
+    --text: #2b1d16;
+    --muted: #7a655a;
+    --accent: #e0352b;
+    --accent-soft: #fde3dc;
+    --border: #f1dfd3;
+    --shadow: 0 6px 24px rgba(120, 60, 30, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1512;
+      --card: #2a201b;
+      --text: #f7ece5;
+      --muted: #c3ab9e;
+      --accent: #ff6b57;
+      --accent-soft: #4a2520;
+      --border: #3d2f28;
+      --shadow: 0 6px 24px rgba(0, 0, 0, .35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  .langs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .langs button {
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 15px; cursor: pointer;
+  }
+  .langs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  header { text-align: center; margin: 32px 0 28px; }
+  header img {
+    width: 128px; height: 128px; border-radius: 28px; box-shadow: var(--shadow);
+  }
+  h1 { font-size: 34px; line-height: 1.15; margin: 18px 0 6px; }
+  .tagline { color: var(--muted); margin: 0 auto; max-width: 520px; }
+
+  h2 { font-size: 22px; margin: 36px 0 12px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    box-shadow: var(--shadow); padding: 18px 20px;
+  }
+
+  details { border-bottom: 1px solid var(--border); }
+  details:last-child { border-bottom: none; }
+  summary {
+    list-style: none; cursor: pointer; padding: 14px 28px 14px 0; position: relative;
+    font-weight: 600;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "+"; position: absolute; right: 2px; top: 10px;
+    font-size: 24px; font-weight: 400; color: var(--accent);
+  }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 16px; color: var(--muted); }
+
+  .contact { text-align: center; }
+  .contact p { margin: 0 0 16px; }
+  .btn {
+    display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
+    font-weight: 600; padding: 12px 22px; border-radius: 14px;
+  }
+  .privacy p { margin: 0; color: var(--muted); }
+
+  footer { text-align: center; color: var(--muted); font-size: 14px; margin-top: 40px; }
+</style>
 </head>
 <body>
-  <h1>Benvenuto!</h1>
-  <p>Questa è la mia prima pagina.</p>
+<div class="wrap">
+  <nav class="langs" id="langs" aria-label="Lingua"></nav>
+
+  <header>
+    <img src="icona.png" alt="Pantry Peasy">
+    <h1>Pantry Peasy</h1>
+    <p class="tagline" id="tagline"></p>
+  </header>
+
+  <h2 id="contactTitle"></h2>
+  <div class="card contact">
+    <p id="contactText"></p>
+    <a class="btn" id="mail" href="#"></a>
+  </div>
+
+  <h2 id="faqTitle"></h2>
+  <div class="card" id="faq"></div>
+
+  <h2 id="privacyTitle"></h2>
+  <div class="card privacy"><p id="privacyText"></p></div>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+// Indirizzo email a cui arrivano le richieste di supporto.
+const CONTACT_EMAIL = "renzo.baltolu.dev@gmail.com";
+
+const LANGS = [
+  ["it", "🇮🇹 Italiano"], ["en", "🇬🇧 English"], ["fr", "🇫🇷 Français"],
+  ["de", "🇩🇪 Deutsch"], ["es", "🇪🇸 Español"], ["pt", "🇵🇹 Português"],
+];
+
+const T = {
+it: {
+  title: "Pantry Peasy – Supporto",
+  tagline: "Ogni alimento diventa un personaggio (Peasy) che ti chiede aiuto prima di scadere. Qui trovi le risposte alle domande più comuni.",
+  faqTitle: "Domande frequenti",
+  faq: [
+    ["Come aggiungo un alimento?", "Nella Dispensa tocca +, scegli un alimento dall'elenco o scrivi il nome e imposta la scadenza. Puoi anche leggere la data dalla confezione con la fotocamera."],
+    ["Come funziona la scansione dello scontrino?", "Tocca il pulsante dello scontrino in alto nella Dispensa e fotografalo ben dritto e illuminato. Peasy riconosce i prodotti e stima le scadenze: prima di aggiungerli puoi controllarli, cambiare l'icona o togliere quelli che non vuoi."],
+    ["Non ricevo i promemoria. Cosa faccio?", "Peasy ti avvisa alle 9:00 del giorno prima e del giorno della scadenza. Se non arrivano, apri Impostazioni dell'iPhone → Notifiche → Pantry Peasy e attiva «Consenti notifiche». Controlla anche che la modalità Full Immersion non le blocchi."],
+    ["Come condivido la dispensa con la famiglia?", "Nell'app apri Impostazioni → Famiglia, scegli un nickname e tocca «Condividi con la famiglia», poi invia l'invito con Messaggi o Mail. Chi lo apre vede e aggiorna gli stessi alimenti dal proprio iPhone. Tutti devono aver effettuato l'accesso a iCloud."],
+    ["La famiglia non vede le mie modifiche.", "Controlla che tutti abbiano accesso a iCloud e una connessione a Internet. Di solito le modifiche arrivano in pochi secondi; se non succede, chiudi e riapri l'app. Se il problema continua, scrivici."],
+    ["Cosa succede quando sposto un alimento in freezer?", "La scadenza si aggiorna da sola in base al tipo di cibo (per esempio 45 giorni per la pasta fresca, 3 mesi per carne macinata, salmone e pane, 4 per pesce e frutti di mare, 6 per bistecche e arrosti, 10 per pollame, frutta e verdura). Succede anche quando aggiungi un alimento scegliendo Freezer. Quando lo riporti in frigo viene segnato come scongelato: va consumato entro 2 giorni e non va ricongelato."],
+    ["Come aggiungo il widget?", "Tieni premuto su uno spazio vuoto della schermata Home, tocca «Modifica» → «Aggiungi widget», cerca Pantry Peasy e scegli il widget. Mostra sempre l'alimento più vicino alla scadenza."],
+    ["Come elimino gli alimenti dal Paradiso?", "Nel Paradiso del Cibo tieni premuto su un alimento per eliminarlo, oppure usa «Svuota» per cancellare un'intera collezione."],
+    ["Come cambio lingua, aspetto o attivo Face ID?", "Tocca l'ingranaggio in alto a sinistra nella Dispensa: puoi scegliere tra 6 lingue, l'aspetto chiaro o scuro e il blocco con Face ID."],
+  ],
+  contactTitle: "Hai bisogno di aiuto?",
+  contactText: "Scrivici: l'email è già pronta, descrivi il problema e completa modello di iPhone e versioni. Ti risponderemo il prima possibile.",
+  mailBody: "Ciao,\n\n[Scrivi qui la tua domanda o il problema]\n\n—\nModello iPhone:\nVersione iOS:\nVersione Pantry Peasy:\n",
+  mail: "Scrivi al supporto",
+  privacyTitle: "Privacy",
+  privacyText: "Pantry Peasy non richiede un account e non raccoglie dati personali. I tuoi alimenti restano sul tuo iPhone e, se usi la dispensa di famiglia, nel tuo iCloud, condivisi solo con le persone che inviti.",
+  footer: "© {y} Pantry Peasy. Tutti i diritti riservati.",
+},
+en: {
+  title: "Pantry Peasy – Support",
+  tagline: "Every food becomes a character (Peasy) that asks for help before it expires. Here you'll find answers to the most common questions.",
+  faqTitle: "Frequently asked questions",
+  faq: [
+    ["How do I add food?", "In the Pantry tap +, pick a food from the list or type its name, and set the expiry date. You can also read the date from the package with your camera."],
+    ["How does receipt scanning work?", "Tap the receipt button at the top of the Pantry and take a straight, well-lit photo. Peasy recognizes the products and estimates their expiry dates: before adding them you can check them, change the icon or remove the ones you don't want."],
+    ["I'm not getting reminders. What should I do?", "Peasy notifies you at 9:00 AM the day before and on the expiry day. If they don't arrive, open iPhone Settings → Notifications → Pantry Peasy and turn on «Allow Notifications». Also check that a Focus mode isn't blocking them."],
+    ["How do I share the pantry with my family?", "In the app open Settings → Family, choose a nickname and tap «Share with family», then send the invitation via Messages or Mail. Whoever opens it sees and updates the same food from their own iPhone. Everyone must be signed in to iCloud."],
+    ["My family doesn't see my changes.", "Make sure everyone is signed in to iCloud and connected to the Internet. Changes usually arrive within seconds; if not, close and reopen the app. If the problem persists, write to us."],
+    ["What happens when I move food to the freezer?", "The expiry date updates automatically based on the type of food (for example 45 days for fresh pasta, 3 months for minced meat, salmon and bread, 4 for fish and seafood, 6 for steaks and roasts, 10 for poultry, fruit and vegetables). The same happens when you add a food and choose Freezer. When you move it back to the fridge it is marked as thawed: eat it within 2 days and don't refreeze it."],
+    ["How do I add the widget?", "Touch and hold an empty area of the Home Screen, tap «Edit» → «Add Widget», search for Pantry Peasy and choose the widget. It always shows the food closest to expiring."],
+    ["How do I delete food from Heaven?", "In Food Heaven touch and hold an item to delete it, or use «Clear» to delete a whole collection."],
+    ["How do I change language or appearance, or turn on Face ID?", "Tap the gear at the top left of the Pantry: you can choose from 6 languages, light or dark appearance and the Face ID lock."],
+  ],
+  contactTitle: "Need help?",
+  contactText: "Write to us: the email is already set up, just describe the problem and fill in your iPhone model and versions. We'll get back to you as soon as possible.",
+  mailBody: "Hi,\n\n[Write your question or problem here]\n\n—\niPhone model:\niOS version:\nPantry Peasy version:\n",
+  mail: "Contact support",
+  privacyTitle: "Privacy",
+  privacyText: "Pantry Peasy doesn't require an account and doesn't collect personal data. Your food stays on your iPhone and, if you use the family pantry, in your iCloud, shared only with the people you invite.",
+  footer: "© {y} Pantry Peasy. All rights reserved.",
+},
+fr: {
+  title: "Pantry Peasy – Assistance",
+  tagline: "Chaque aliment devient un personnage (Peasy) qui appelle à l'aide avant sa date limite. Vous trouverez ici les réponses aux questions les plus fréquentes.",
+  faqTitle: "Questions fréquentes",
+  faq: [
+    ["Comment ajouter un aliment ?", "Dans le Garde-manger, touchez +, choisissez un aliment dans la liste ou tapez son nom, puis indiquez la date limite. Vous pouvez aussi lire la date sur l'emballage avec l'appareil photo."],
+    ["Comment fonctionne la lecture du ticket de caisse ?", "Touchez le bouton du ticket en haut du Garde-manger et prenez une photo bien droite et bien éclairée. Peasy reconnaît les produits et estime leur date : avant de les ajouter, vous pouvez les vérifier, changer l'icône ou retirer ceux que vous ne voulez pas."],
+    ["Je ne reçois pas les rappels. Que faire ?", "Peasy vous prévient à 9 h la veille et le jour de la date limite. S'ils n'arrivent pas, ouvrez Réglages de l'iPhone → Notifications → Pantry Peasy et activez « Autoriser les notifications ». Vérifiez aussi qu'un mode de concentration ne les bloque pas."],
+    ["Comment partager le garde-manger avec ma famille ?", "Dans l'app, ouvrez Réglages → Famille, choisissez un pseudo et touchez « Partager avec la famille », puis envoyez l'invitation par Messages ou Mail. Ceux qui l'ouvrent voient et modifient les mêmes aliments depuis leur iPhone. Tout le monde doit être connecté à iCloud."],
+    ["Ma famille ne voit pas mes modifications.", "Vérifiez que tout le monde est connecté à iCloud et à Internet. Les modifications arrivent en général en quelques secondes ; sinon, fermez puis rouvrez l'app. Si le problème persiste, écrivez-nous."],
+    ["Que se passe-t-il quand je mets un aliment au congélateur ?", "La date se met à jour toute seule selon le type d'aliment (par exemple 45 jours pour les pâtes fraîches, 3 mois pour la viande hachée, le saumon et le pain, 4 pour le poisson et les fruits de mer, 6 pour les steaks et rôtis, 10 pour la volaille, les fruits et légumes). C'est pareil quand vous ajoutez un aliment en choisissant Congélateur. Quand vous le remettez au frigo, il est marqué comme décongelé : consommez-le sous 2 jours et ne le recongelez pas."],
+    ["Comment ajouter le widget ?", "Maintenez le doigt sur une zone vide de l'écran d'accueil, touchez « Modifier » → « Ajouter un widget », cherchez Pantry Peasy et choisissez le widget. Il affiche toujours l'aliment le plus proche de sa date."],
+    ["Comment supprimer des aliments du Paradis ?", "Dans le Paradis des aliments, maintenez le doigt sur un aliment pour le supprimer, ou utilisez « Vider » pour effacer toute une collection."],
+    ["Comment changer la langue, l'apparence ou activer Face ID ?", "Touchez la roue dentée en haut à gauche du Garde-manger : vous pouvez choisir parmi 6 langues, l'apparence claire ou sombre et le verrouillage avec Face ID."],
+  ],
+  contactTitle: "Besoin d'aide ?",
+  contactText: "Écrivez-nous : l'e-mail est déjà prêt, décrivez le problème et indiquez le modèle d'iPhone et les versions. Nous vous répondrons dès que possible.",
+  mailBody: "Bonjour,\n\n[Écrivez ici votre question ou le problème]\n\n—\nModèle d'iPhone :\nVersion d'iOS :\nVersion de Pantry Peasy :\n",
+  mail: "Contacter l'assistance",
+  privacyTitle: "Confidentialité",
+  privacyText: "Pantry Peasy ne demande pas de compte et ne collecte aucune donnée personnelle. Vos aliments restent sur votre iPhone et, si vous utilisez le garde-manger familial, dans votre iCloud, partagés uniquement avec les personnes que vous invitez.",
+  footer: "© {y} Pantry Peasy. Tous droits réservés.",
+},
+de: {
+  title: "Pantry Peasy – Support",
+  tagline: "Jedes Lebensmittel wird zu einer Figur, die vor dem Ablauf um Hilfe bittet. Hier findest du Antworten auf die häufigsten Fragen.",
+  faqTitle: "Häufige Fragen",
+  faq: [
+    ["Wie füge ich ein Lebensmittel hinzu?", "Tippe im Vorrat auf +, wähle ein Lebensmittel aus der Liste oder gib den Namen ein und lege das Ablaufdatum fest. Du kannst das Datum auch mit der Kamera von der Verpackung ablesen."],
+    ["Wie funktioniert das Scannen des Kassenbons?", "Tippe oben im Vorrat auf die Kassenbon-Taste und fotografiere ihn gerade und gut beleuchtet. Peasy erkennt die Produkte und schätzt ihre Haltbarkeit: Vor dem Hinzufügen kannst du sie prüfen, das Symbol ändern oder die entfernen, die du nicht willst."],
+    ["Ich bekomme keine Erinnerungen. Was tun?", "Peasy benachrichtigt dich um 9:00 Uhr am Tag davor und am Ablauftag. Wenn nichts ankommt, öffne iPhone-Einstellungen → Mitteilungen → Pantry Peasy und aktiviere „Mitteilungen erlauben“. Prüfe auch, ob ein Fokus sie blockiert."],
+    ["Wie teile ich den Vorrat mit meiner Familie?", "Öffne in der App Einstellungen → Familie, wähle einen Spitznamen, tippe auf „Mit der Familie teilen“ und sende die Einladung per Nachrichten oder Mail. Wer sie öffnet, sieht und bearbeitet dieselben Lebensmittel auf dem eigenen iPhone. Alle müssen bei iCloud angemeldet sein."],
+    ["Meine Familie sieht meine Änderungen nicht.", "Prüfe, ob alle bei iCloud angemeldet und mit dem Internet verbunden sind. Änderungen kommen meist in wenigen Sekunden an; sonst schließe die App und öffne sie erneut. Wenn das Problem bleibt, schreib uns."],
+    ["Was passiert, wenn ich ein Lebensmittel in den Gefrierschrank lege?", "Das Ablaufdatum passt sich je nach Art des Lebensmittels automatisch an (zum Beispiel 45 Tage für frische Pasta, 3 Monate für Hackfleisch, Lachs und Brot, 4 für Fisch und Meeresfrüchte, 6 für Steaks und Braten, 10 für Geflügel, Obst und Gemüse). Das passiert auch, wenn du ein Lebensmittel hinzufügst und Gefrierschrank wählst. Wenn du es zurück in den Kühlschrank legst, wird es als aufgetaut markiert: Iss es innerhalb von 2 Tagen und friere es nicht wieder ein."],
+    ["Wie füge ich das Widget hinzu?", "Lege den Finger auf eine leere Stelle des Home-Bildschirms, tippe auf „Bearbeiten“ → „Widget hinzufügen“, suche nach Pantry Peasy und wähle das Widget. Es zeigt immer das Lebensmittel, das als Nächstes abläuft."],
+    ["Wie lösche ich Lebensmittel aus dem Himmel?", "Lege im Essenshimmel den Finger auf ein Lebensmittel, um es zu löschen, oder nutze „Leeren“, um eine ganze Sammlung zu löschen."],
+    ["Wie ändere ich Sprache oder Erscheinungsbild oder aktiviere Face ID?", "Tippe oben links im Vorrat auf das Zahnrad: Du kannst zwischen 6 Sprachen, hellem oder dunklem Erscheinungsbild und der Sperre mit Face ID wählen."],
+  ],
+  contactTitle: "Brauchst du Hilfe?",
+  contactText: "Schreib uns: Die E-Mail ist schon vorbereitet, beschreibe einfach das Problem und ergänze iPhone-Modell und Versionen. Wir antworten so schnell wie möglich.",
+  mailBody: "Hallo,\n\n[Schreib hier deine Frage oder das Problem]\n\n—\niPhone-Modell:\niOS-Version:\nPantry-Peasy-Version:\n",
+  mail: "Support kontaktieren",
+  privacyTitle: "Datenschutz",
+  privacyText: "Pantry Peasy braucht kein Konto und sammelt keine persönlichen Daten. Deine Lebensmittel bleiben auf deinem iPhone und, wenn du den Familienvorrat nutzt, in deiner iCloud – geteilt nur mit den Personen, die du einlädst.",
+  footer: "© {y} Pantry Peasy. Alle Rechte vorbehalten.",
+},
+es: {
+  title: "Pantry Peasy – Soporte",
+  tagline: "Cada alimento se convierte en un personaje (Peasy) que pide ayuda antes de caducar. Aquí encontrarás las respuestas a las preguntas más comunes.",
+  faqTitle: "Preguntas frecuentes",
+  faq: [
+    ["¿Cómo añado un alimento?", "En la Despensa toca +, elige un alimento de la lista o escribe su nombre y fija la fecha de caducidad. También puedes leer la fecha del envase con la cámara."],
+    ["¿Cómo funciona el escaneo del ticket?", "Toca el botón del ticket arriba en la Despensa y hazle una foto recta y bien iluminada. Peasy reconoce los productos y estima su caducidad: antes de añadirlos puedes revisarlos, cambiar el icono o quitar los que no quieras."],
+    ["No recibo los recordatorios. ¿Qué hago?", "Peasy te avisa a las 9:00 del día antes y del día de la caducidad. Si no llegan, abre Ajustes del iPhone → Notificaciones → Pantry Peasy y activa «Permitir notificaciones». Comprueba también que un modo de concentración no las bloquee."],
+    ["¿Cómo comparto la despensa con mi familia?", "En la app abre Ajustes → Familia, elige un apodo y toca «Compartir con la familia»; luego envía la invitación por Mensajes o Mail. Quien la abra verá y actualizará los mismos alimentos desde su iPhone. Todos deben haber iniciado sesión en iCloud."],
+    ["Mi familia no ve mis cambios.", "Comprueba que todos hayan iniciado sesión en iCloud y tengan conexión a Internet. Los cambios suelen llegar en segundos; si no, cierra y vuelve a abrir la app. Si el problema continúa, escríbenos."],
+    ["¿Qué pasa cuando muevo un alimento al congelador?", "La fecha se actualiza sola según el tipo de alimento (por ejemplo 45 días para la pasta fresca, 3 meses para carne picada, salmón y pan, 4 para pescado y marisco, 6 para filetes y asados, 10 para aves, fruta y verdura). También pasa cuando añades un alimento y eliges Congelador. Cuando lo devuelves a la nevera se marca como descongelado: consúmelo en 2 días y no lo vuelvas a congelar."],
+    ["¿Cómo añado el widget?", "Mantén pulsada una zona vacía de la pantalla de inicio, toca «Editar» → «Añadir widget», busca Pantry Peasy y elige el widget. Siempre muestra el alimento más cercano a caducar."],
+    ["¿Cómo elimino alimentos del Paraíso?", "En el Paraíso de la comida mantén pulsado un alimento para eliminarlo, o usa «Vaciar» para borrar toda una colección."],
+    ["¿Cómo cambio el idioma o el aspecto, o activo Face ID?", "Toca el engranaje arriba a la izquierda en la Despensa: puedes elegir entre 6 idiomas, el aspecto claro u oscuro y el bloqueo con Face ID."],
+  ],
+  contactTitle: "¿Necesitas ayuda?",
+  contactText: "Escríbenos: el correo ya está preparado, describe el problema y completa el modelo de iPhone y las versiones. Te responderemos lo antes posible.",
+  mailBody: "Hola:\n\n[Escribe aquí tu pregunta o el problema]\n\n—\nModelo de iPhone:\nVersión de iOS:\nVersión de Pantry Peasy:\n",
+  mail: "Contactar con soporte",
+  privacyTitle: "Privacidad",
+  privacyText: "Pantry Peasy no requiere una cuenta ni recopila datos personales. Tus alimentos se quedan en tu iPhone y, si usas la despensa familiar, en tu iCloud, compartidos solo con las personas que invites.",
+  footer: "© {y} Pantry Peasy. Todos los derechos reservados.",
+},
+pt: {
+  title: "Pantry Peasy – Suporte",
+  tagline: "Cada alimento torna-se uma personagem (Peasy) que pede ajuda antes de expirar. Aqui encontra as respostas às perguntas mais comuns.",
+  faqTitle: "Perguntas frequentes",
+  faq: [
+    ["Como adiciono um alimento?", "Na Despensa toque em +, escolha um alimento da lista ou escreva o nome e defina a validade. Também pode ler a data da embalagem com a câmara."],
+    ["Como funciona a leitura do talão?", "Toque no botão do talão no topo da Despensa e tire uma fotografia direita e bem iluminada. O Peasy reconhece os produtos e estima a validade: antes de os adicionar pode verificá-los, mudar o ícone ou retirar os que não quer."],
+    ["Não recebo os lembretes. O que faço?", "O Peasy avisa-o às 9:00 da véspera e do dia em que o alimento expira. Se não chegarem, abra Definições do iPhone → Notificações → Pantry Peasy e ative «Permitir notificações». Verifique também se um modo de foco não as está a bloquear."],
+    ["Como partilho a despensa com a família?", "Na app abra Definições → Família, escolha uma alcunha e toque em «Partilhar com a família»; depois envie o convite por Mensagens ou Mail. Quem o abrir vê e atualiza os mesmos alimentos no próprio iPhone. Todos devem ter sessão iniciada no iCloud."],
+    ["A minha família não vê as minhas alterações.", "Verifique se todos têm sessão iniciada no iCloud e ligação à Internet. As alterações chegam normalmente em segundos; se não, feche e volte a abrir a app. Se o problema continuar, escreva-nos."],
+    ["O que acontece quando passo um alimento para o congelador?", "A validade atualiza-se sozinha conforme o tipo de alimento (por exemplo 45 dias para a massa fresca, 3 meses para carne picada, salmão e pão, 4 para peixe e marisco, 6 para bifes e assados, 10 para aves, fruta e legumes). O mesmo acontece quando adiciona um alimento e escolhe Congelador. Quando o volta a pôr no frigorífico fica marcado como descongelado: consuma-o em 2 dias e não o volte a congelar."],
+    ["Como adiciono o widget?", "Mantenha o dedo numa zona vazia do ecrã principal, toque em «Editar» → «Adicionar widget», procure Pantry Peasy e escolha o widget. Mostra sempre o alimento mais perto de expirar."],
+    ["Como elimino alimentos do Paraíso?", "No Paraíso da comida mantenha o dedo num alimento para o eliminar, ou use «Esvaziar» para apagar uma coleção inteira."],
+    ["Como mudo o idioma ou o aspeto, ou ativo o Face ID?", "Toque na roda dentada no canto superior esquerdo da Despensa: pode escolher entre 6 idiomas, o aspeto claro ou escuro e o bloqueio com Face ID."],
+  ],
+  contactTitle: "Precisa de ajuda?",
+  contactText: "Escreva-nos: o email já está preparado, descreva o problema e complete o modelo do iPhone e as versões. Responderemos o mais depressa possível.",
+  mailBody: "Olá,\n\n[Escreva aqui a sua pergunta ou o problema]\n\n—\nModelo do iPhone:\nVersão do iOS:\nVersão do Pantry Peasy:\n",
+  mail: "Contactar o suporte",
+  privacyTitle: "Privacidade",
+  privacyText: "O Pantry Peasy não pede uma conta nem recolhe dados pessoais. Os seus alimentos ficam no seu iPhone e, se usar a despensa familiar, no seu iCloud, partilhados apenas com as pessoas que convidar.",
+  footer: "© {y} Pantry Peasy. Todos os direitos reservados.",
+},
+};
+
+function pickInitial() {
+  const fromUrl = new URLSearchParams(location.search).get("lang");
+  if (T[fromUrl]) return fromUrl;
+  try {
+    const saved = localStorage.getItem("lang");
+    if (T[saved]) return saved;
+  } catch (e) {}
+  for (const l of navigator.languages || [navigator.language || "it"]) {
+    const code = l.slice(0, 2).toLowerCase();
+    if (T[code]) return code;
+  }
+  return "en";
+}
+
+function render(lang) {
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.title = t.title;
+  for (const id of ["tagline", "faqTitle", "contactTitle", "contactText", "privacyTitle", "privacyText"]) {
+    document.getElementById(id).textContent = t[id];
+  }
+  document.getElementById("footer").textContent = t.footer.replace("{y}", new Date().getFullYear());
+
+  const mail = document.getElementById("mail");
+  mail.textContent = t.mail;
+  mail.href = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent("Pantry Peasy – " + t.mail)
+    + "&body=" + encodeURIComponent(t.mailBody);
+
+  const faq = document.getElementById("faq");
+  faq.replaceChildren(...t.faq.map(([q, a]) => {
+    const d = document.createElement("details");
+    const s = document.createElement("summary");
+    const p = document.createElement("p");
+    s.textContent = q;
+    p.textContent = a;
+    d.append(s, p);
+    return d;
+  }));
+
+  for (const b of document.querySelectorAll("#langs button")) {
+    b.setAttribute("aria-pressed", b.dataset.lang === lang ? "true" : "false");
+  }
+  try { localStorage.setItem("lang", lang); } catch (e) {}
+}
+
+const nav = document.getElementById("langs");
+for (const [code, label] of LANGS) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.dataset.lang = code;
+  b.textContent = label;
+  b.addEventListener("click", () => render(code));
+  nav.append(b);
+}
+render(pickInitial());
+</script>
 </body>
 </html>
